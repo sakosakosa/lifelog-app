@@ -1,11 +1,16 @@
-import Welcome from "@/components/Welcome";
+"use client";
+
+import { DndContext } from "@dnd-kit/core";
+import Sidebar from "@/components/Sidebar";
+import Grid from "@/components/Grid";
 
 export default function Home() {
   return (
-    <main>
-      <Welcome name="AAAA" />
-      <Welcome name="BBBB" />
-      <Welcome name="CCCC" />
-    </main>
+    <DndContext>
+      <main className="flex h-screen">
+        <Sidebar />
+        <Grid />
+      </main>
+    </DndContext>
   );
 }
