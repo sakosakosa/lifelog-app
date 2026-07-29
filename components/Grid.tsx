@@ -1,12 +1,21 @@
+import Cell from "./Cell";
+
 export default function Grid() {
-    const columns = 10;
-    const rows = 10;
+  const columns = 10;
+  const rows = 10;
+
   return (
-    <div className="grid flex-1 grid-cols-10 gap-1 p-4">
+    <div
+      className="grid flex-1 gap-1 p-4"
+      style={{
+        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+      }}
+    >
       {Array.from({ length: rows * columns }).map((_, index) => (
-        <div
+        <Cell
           key={index}
-          className="aspect-square rounded border border-gray-300 bg-white"
+          index={index}
         />
       ))}
     </div>

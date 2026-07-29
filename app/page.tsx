@@ -5,8 +5,14 @@ import Sidebar from "@/components/Sidebar";
 import Grid from "@/components/Grid";
 
 export default function Home() {
+
+    function handleDragEnd(event: any) {
+    console.log(event);
+  }
+
   return (
-    <DndContext>
+    <DndContext onDragEnd={handleDragEnd}>
+      onDragEnd={handleDragEnd}
       <main className="flex h-screen">
         <Sidebar />
         <Grid />
