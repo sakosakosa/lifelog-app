@@ -16,12 +16,16 @@ export default function DraggableWidget({
   const { attributes, listeners, setNodeRef, transform } =
     useDraggable({
       id,
+      data: {
+        source: "sidebar",
+        type: id,
+      },
     });
 
   const style = transform
     ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    }
     : undefined;
 
   return (

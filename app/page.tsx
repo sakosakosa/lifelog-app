@@ -10,18 +10,37 @@ export default function Home() {
   const [placedWidgets, setPlacedWidgets] = useState({});
 
   function handleDragEnd(event: any) {
-    const widgetId = event.active.id;
+    //console.log(event.active.data.current);
+    const data = event.active.data.current;
     const cellIndex = event.over?.id;
 
     if (cellIndex == null) return;
 
-    setPlacedWidgets((prev) => ({
-  ...prev,
-  [cellIndex]: widgetId,
-}));
+    if (data.source === "sidebar") {
+      setPlacedWidgets((prev) => ({
+        ...prev,
+        [cellIndex]: {
+          id: crypto.randomUUID(),
+          type: data.type,
+        },
+      }));
+    } else if (data.source === "grid") {
+      setPlacedWidgets((prev) => {
+        const newPlacedWidgets = {
+          ...prev,
+        };
+        delete newPlacedWidgets[data.cellIndex];
+        newPlacedWidgets[cellIndex] = {
+          id: event.active.id,
+          type: data.type,
+        };
+        return newPlacedWidgets;
+      });
+    }
+
   }
-  
-console.log(placedWidgets);
+
+  //console.log(placedWidgets);
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <main className="flex h-screen">
