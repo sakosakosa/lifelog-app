@@ -1,6 +1,12 @@
 import Cell from "./Cell";
 
-export default function Grid() {
+type Props = {
+  placedWidgets: Record<number, string>;
+};
+
+export default function Grid({
+  placedWidgets
+}: Props) {
   const columns = 10;
   const rows = 10;
 
@@ -16,6 +22,7 @@ export default function Grid() {
         <Cell
           key={index}
           index={index}
+          widget={placedWidgets[index]}
         />
       ))}
     </div>

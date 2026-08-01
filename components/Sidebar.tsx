@@ -1,22 +1,6 @@
 import DraggableWidget from "./DraggableWidget";
+import { widgets } from "@/data/widgets";
 
-const widgets = [
-  {
-    id: "diary",
-    icon: "📒",
-    name: "日記",
-  },
-  {
-    id: "clock",
-    icon: "🕒",
-    name: "時計",
-  },
-  {
-    id: "weight",
-    icon: "⚖️",
-    name: "体重",
-  },
-];
 
 export default function Sidebar() {
   return (
