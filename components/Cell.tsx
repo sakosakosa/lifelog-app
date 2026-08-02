@@ -1,5 +1,6 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { widgets } from "@/data/widgets";
+import DiaryWidget from "./widgets/DiaryWidget";
 
 type Widget = {
     id: string;
@@ -24,6 +25,7 @@ export default function Cell({
     onContextMenu,
 }: Props) {
     const widgetData = widgets.find((w) => w.id === widget?.type);
+    const isDiaryWidget = widget?.type === "diary";
 
     const { setNodeRef } = useDroppable({
         id: index,
@@ -52,7 +54,7 @@ export default function Cell({
     return (
         <div
             ref={setNodeRef}
-            className="flex flex-col items-center justify-center rounded border border-gray-300 bg-white"
+            className="rounded border border-gray-300 bg-white"
         >
             {widget && (
                 <div
@@ -69,10 +71,16 @@ export default function Cell({
                             index
                         );
                     }}
-                    className="cursor-grab active:cursor-grabbing"
+                    className="h-full w-full cursor-grab active:cursor-grabbing"
                 >
-                    <div>{widgetData?.icon}</div>
-                    <div className="text-xs">{widgetData?.name}</div>
+                    {isDiaryWidget ? (
+                        <DiaryWidget content={widget.content} />
+                    ) : (
+                        <>
+                            <div>{widgetData?.icon}</div>
+                            <div className="text-xs">{widgetData?.name}</div>
+                        </>
+                    )}
                 </div>
             )}
         </div>

@@ -14,3 +14,10 @@ export type BaseWidget = {
   type: WidgetType;
   layout: Layout;
 };
+
+export type DiaryWidget = BaseWidget & {
+  type: "diary";
+  content: string;
+};
+
+export type WidgetInstance = BaseWidget | DiaryWidget;

@@ -5,10 +5,11 @@ import { useEffect, useState, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import Grid from "@/components/Grid";
 import ContextMenu from "@/components/ContextMenu";
+import { WidgetInstance } from "@/types/widget";
 
 export default function Home() {
 
-  const [widgetInstances, setWidgetInstances] = useState({});
+  const [widgetInstances, setWidgetInstances] = useState<Record<number, WidgetInstance>>({});
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -18,34 +19,50 @@ export default function Home() {
   const isLoaded = useRef(false);
 
   function handleDragEnd(event: any) {
-    //console.log(event.active.data.current);
     const data = event.active.data.current;
     const cellIndex = event.over?.id;
 
     if (cellIndex == null) return;
 
     if (data.source === "sidebar") {
+      const widget =
+        data.type === "diary"
+          ? {
+            id: crypto.randomUUID(),
+            type: "diary" as const,
+            layout: {
+              width: 1,
+              height: 1,
+            },
+            content: "",
+          }
+          : {
+            id: crypto.randomUUID(),
+            type: data.type,
+            layout: {
+              width: 1,
+              height: 1,
+            },
+          };
+
       setWidgetInstances((prev) => ({
         ...prev,
-        [cellIndex]: {
-          id: crypto.randomUUID(),
-          type: data.type,
-        },
+        [cellIndex]: widget,
       }));
     } else if (data.source === "grid") {
       setWidgetInstances((prev) => {
         const newWidgetInstances = {
           ...prev,
         };
+
+        const widget = newWidgetInstances[data.cellIndex];
+
         delete newWidgetInstances[data.cellIndex];
-        newWidgetInstances[cellIndex] = {
-          id: event.active.id,
-          type: data.type,
-        };
+        newWidgetInstances[cellIndex] = widget;
+
         return newWidgetInstances;
       });
     }
-
   }
 
   function handleDelete(index: number) {
