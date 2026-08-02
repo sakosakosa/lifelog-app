@@ -1,6 +1,6 @@
 "use client";
 
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, pointerWithin } from "@dnd-kit/core";
 import { useEffect, useState, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import Grid from "@/components/Grid";
@@ -15,6 +15,7 @@ export default function Home() {
     cellIndex: number;
   } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const isLoaded = useRef(false);
 
   function handleDragEnd(event: any) {
     //console.log(event.active.data.current);
@@ -92,9 +93,31 @@ export default function Home() {
     };
   }, [contextMenu]);
 
+  useEffect(() => {
+    if (!isLoaded.current) return;
+
+    localStorage.setItem(
+      "widgetInstances",
+      JSON.stringify(widgetInstances)
+    );
+  }, [widgetInstances]);
+
+  useEffect(() => {
+    const savedWidgetInstances = localStorage.getItem("widgetInstances");
+
+    if (savedWidgetInstances) {
+      setWidgetInstances(JSON.parse(savedWidgetInstances));
+    }
+
+    isLoaded.current = true;
+  }, []);
+
   //console.log(widgetInstances);
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext
+      onDragEnd={handleDragEnd}
+      collisionDetection={pointerWithin}
+    >
       <main className="flex h-screen">
         <Sidebar />
         <Grid
