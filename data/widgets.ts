@@ -4,6 +4,11 @@ export const widgets = [
     icon: "📒",
     name: "日記",
   },
+   {
+    id: "Spotify",
+    icon: "🎵",
+    name: "Spotify",
+  },
   {
     id: "clock",
     icon: "🕒",

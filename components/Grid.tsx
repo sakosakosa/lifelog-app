@@ -1,11 +1,20 @@
 import Cell from "./Cell";
+import { BaseWidget } from "@/types/widget";
 
 type Props = {
-  placedWidgets: Record<number, string>;
+  widgetInstances: Record<number, BaseWidget>;
+  onDelete: (index: number) => void;
+  onContextMenu: (
+    x: number,
+    y: number,
+    cellIndex: number
+  ) => void;
 };
 
 export default function Grid({
-  placedWidgets
+  widgetInstances,
+  onDelete,
+  onContextMenu,
 }: Props) {
   const columns = 10;
   const rows = 10;
@@ -22,7 +31,9 @@ export default function Grid({
         <Cell
           key={index}
           index={index}
-          widget={placedWidgets[index]}
+          widget={widgetInstances[index]}
+          onDelete={onDelete}
+          onContextMenu={onContextMenu}
         />
       ))}
     </div>
