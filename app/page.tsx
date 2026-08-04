@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import Grid from "@/components/Grid";
 import ContextMenu from "@/components/ContextMenu";
 import { WidgetInstance } from "@/types/widget";
+import { createWidget } from "@/lib/createWidget";
 
 export default function Home() {
 
@@ -25,25 +26,7 @@ export default function Home() {
     if (cellIndex == null) return;
 
     if (data.source === "sidebar") {
-      const widget =
-        data.type === "diary"
-          ? {
-            id: crypto.randomUUID(),
-            type: "diary" as const,
-            layout: {
-              width: 1,
-              height: 1,
-            },
-            content: "",
-          }
-          : {
-            id: crypto.randomUUID(),
-            type: data.type,
-            layout: {
-              width: 1,
-              height: 1,
-            },
-          };
+      const widget = createWidget(data.type);
 
       setWidgetInstances((prev) => ({
         ...prev,

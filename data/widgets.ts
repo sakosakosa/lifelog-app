@@ -5,7 +5,7 @@ export const widgets = [
     name: "日記",
   },
    {
-    id: "Spotify",
+    id: "spotify",
     icon: "🎵",
     name: "Spotify",
   },
