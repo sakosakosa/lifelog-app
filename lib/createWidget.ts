@@ -1,22 +1,23 @@
-import { WidgetInstance, WidgetType } from "@/types/widget";
+import { WidgetInstance, WidgetType } from "@/types/widgetTypes";
 
 export function createWidget(
-  type: WidgetType
+  type: WidgetType,
+  x: number,
+  y: number
 ): WidgetInstance {
   const base = {
     id: crypto.randomUUID(),
     type,
-    layout: {
-      width: 1,
-      height: 1,
-    },
+    x,
+    y,
+    width: 1,
+    height: 1,
   };
 
   switch (type) {
     case "diary":
       return {
         ...base,
-        type: "diary",
         content: "",
       };
 

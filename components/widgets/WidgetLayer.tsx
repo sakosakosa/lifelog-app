@@ -1,9 +1,10 @@
-import Cell from "./Cell";
-import WidgetContainer from "./WidgetContainer";
+import WidgetContainer from "../WidgetContainer";
 import { WidgetInstance } from "@/types/widgetTypes";
 
 type Props = {
   widgetInstances: WidgetInstance[];
+  columns: number;
+  rows: number;
   onContextMenu: (
     x: number,
     y: number,
@@ -14,32 +15,18 @@ type Props = {
 export default function Grid({
   widgetInstances,
   onContextMenu,
+  columns,
+  rows,
 }: Props) {
-  const columns = 10;
-  const rows = 10;
 
   return (
     <div
-      className="grid flex-1 gap-1 p-4"
-      style={{
-        gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0,1fr))`,
-      }}
-    >
-      {/* 背景セル */}
-      {Array.from({ length: rows * columns }).map((_, index) => {
-        const x = index % columns;
-        const y = Math.floor(index / columns);
-
-        return (
-          <Cell
-            key={index}
-            index={index}
-            x={x}
-            y={y}
-          />
-        );
-      })}
+  className="absolute inset-0 grid gap-1 p-4"
+  style={{
+    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+    gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+  }}
+>
 
       {/* ウィジェット（同じgrid上にx,yで配置） */}
       {widgetInstances.map((widget) => (
@@ -52,7 +39,6 @@ export default function Grid({
         >
           <WidgetContainer
             widget={widget}
-            onDelete={onDelete}
             onContextMenu={onContextMenu}
           />
         </div>

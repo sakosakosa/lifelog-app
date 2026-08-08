@@ -12,7 +12,10 @@ export type Layout = {
 export type BaseWidget = {
   id: string;
   type: WidgetType;
-  layout: Layout;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
 export type DiaryWidget = BaseWidget & {

@@ -1,4 +1,4 @@
-import { WidgetInstance } from "@/types/widget";
+import { WidgetInstance } from "@/types/widgetTypes";
 import DiaryWidget from "./DiaryWidget";
 import SpotifyWidget from "./SpotifyWidget";
 import ClockWidget from "./ClockWidget";

@@ -1,5 +1,5 @@
 import DraggableWidget from "./DraggableWidget";
-import { widgets } from "@/data/widgets";
+import { sidebarWidgetDefinitions } from "@/data/sidebarWidgetDefinitions";
 
 
 export default function Sidebar() {
@@ -10,12 +10,12 @@ export default function Sidebar() {
       </h2>
 
       <div className="space-y-3">
-        {widgets.map((widget) => (
+        {sidebarWidgetDefinitions.map((sidebarWidgetDefinitions) => (
           <DraggableWidget
-            key={widget.id}
-            id={widget.id}
-            icon={widget.icon}
-            name={widget.name}
+            key={sidebarWidgetDefinitions.widgetType}
+            widgetType={sidebarWidgetDefinitions.widgetType}
+            widgetIcon={sidebarWidgetDefinitions.widgetIcon}
+            widgetName={sidebarWidgetDefinitions.widgetName}
           />
         ))}
       </div>

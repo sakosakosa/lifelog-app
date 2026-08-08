@@ -1,16 +1,16 @@
 import { RefObject } from "react";
 
 type Props = {
-    x: number;
-    y: number;
+    X: number;
+    Y: number;
     onDelete: () => void;
     menuRef: RefObject<HTMLDivElement | null>;
 };
 
 
 export default function ContextMenu({
-    x,
-    y,
+    X,
+    Y,
     onDelete,
     menuRef,
 }: Props) {
@@ -20,8 +20,8 @@ export default function ContextMenu({
             ref={menuRef}
             className="fixed z-50 w-40 rounded-md border bg-white shadow-lg"
             style={{
-                left: x,
-                top: y,
+                left: X,
+                top: Y,
             }}
         >
             <button

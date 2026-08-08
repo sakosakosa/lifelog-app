@@ -1,71 +1,81 @@
 "use client";
 
 import { DndContext, pointerWithin } from "@dnd-kit/core";
+import { closestCorners } from "@dnd-kit/core";
 import { useEffect, useState, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
-import Grid from "@/components/Grid";
+import Grid1 from "@/components/Grid1";
 import ContextMenu from "@/components/ContextMenu";
-import { WidgetInstance } from "@/types/widget";
+import { WidgetInstance } from "@/types/widgetTypes";
 import { createWidget } from "@/lib/createWidget";
 
 export default function Home() {
-
-  const [widgetInstances, setWidgetInstances] = useState<Record<number, WidgetInstance>>({});
+  const [widgetInstances, setWidgetInstances] = useState<WidgetInstance[]>([]);
   const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-    cellIndex: number;
+    X: number;
+    Y: number;
+    widgetId: string | null; // cellIndex ではなく widgetId を保持
   } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const isLoaded = useRef(false);
 
   function handleDragEnd(event: any) {
-    const data = event.active.data.current;
-    const cellIndex = event.over?.id;
+    const { active, over } = event;
 
-    if (cellIndex == null) return;
+    if (!over) return;
 
-    if (data.source === "sidebar") {
-      const widget = createWidget(data.type);
+    const { x, y } = over.data.current ?? {};
+    if (typeof x !== "number" || typeof y !== "number") return;
 
-      setWidgetInstances((prev) => ({
+    const source = active.data.current?.source;
+
+    // サイドバー → セル：新規作成
+    if (source === "sidebar") {
+      const widget = createWidget(
+        active.data.current.widgetType,
+        x,
+        y
+      );
+
+      setWidgetInstances((prev) => [
         ...prev,
-        [cellIndex]: widget,
-      }));
-    } else if (data.source === "grid") {
+        widget,
+      ]);
+
+      return;
+    }
+
+    // セル → セル：既存ウィジェットを移動
+    if (source === "grid") {
+      const widgetId = active.data.current.widgetId;
+
       setWidgetInstances((prev) => {
-        const newWidgetInstances = {
-          ...prev,
-        };
+        const isOccupied = prev.some(
+          (widget) =>
+            widget.id !== widgetId &&
+            widget.x === x &&
+            widget.y === y
+        );
 
-        const widget = newWidgetInstances[data.cellIndex];
+        if (isOccupied) {
+          return prev;
+        }
 
-        delete newWidgetInstances[data.cellIndex];
-        newWidgetInstances[cellIndex] = widget;
-
-        return newWidgetInstances;
+        return prev.map((widget) =>
+          widget.id === widgetId
+            ? { ...widget, x, y }
+            : widget
+        );
       });
     }
   }
 
-  function handleDelete(index: number) {
-    setWidgetInstances((prev) => {
-      const newWidgetInstances = { ...prev };
-      delete newWidgetInstances[index];
-      return newWidgetInstances;
-    });
+  function handleDelete(id: string) {
+    setWidgetInstances((prev) => prev.filter((w) => w.id !== id));
   }
 
-  function handleContextMenu(
-    x: number,
-    y: number,
-    cellIndex: number
-  ) {
-    setContextMenu({
-      x,
-      y,
-      cellIndex,
-    });
+  function handleContextMenu(X: number, Y: number, widgetId: string | null) {
+    setContextMenu({ X, Y, widgetId });
   }
 
   function closeContextMenu() {
@@ -74,45 +84,30 @@ export default function Home() {
 
   useEffect(() => {
     function handleClick(event: MouseEvent) {
-      if (
-        menuRef.current &&
-        menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && menuRef.current.contains(event.target as Node)) {
         return;
       }
-
       closeContextMenu();
     }
-
     if (contextMenu) {
       window.addEventListener("click", handleClick);
     }
-
-    return () => {
-      window.removeEventListener("click", handleClick);
-    };
+    return () => window.removeEventListener("click", handleClick);
   }, [contextMenu]);
 
   useEffect(() => {
     if (!isLoaded.current) return;
-
-    localStorage.setItem(
-      "widgetInstances",
-      JSON.stringify(widgetInstances)
-    );
+    localStorage.setItem("widgetInstances", JSON.stringify(widgetInstances));
   }, [widgetInstances]);
 
   useEffect(() => {
-    const savedWidgetInstances = localStorage.getItem("widgetInstances");
-
-    if (savedWidgetInstances) {
-      setWidgetInstances(JSON.parse(savedWidgetInstances));
+    const saved = localStorage.getItem("widgetInstances");
+    if (saved) {
+      setWidgetInstances(JSON.parse(saved));
     }
-
     isLoaded.current = true;
   }, []);
 
-  //console.log(widgetInstances);
   return (
     <DndContext
       onDragEnd={handleDragEnd}
@@ -120,18 +115,19 @@ export default function Home() {
     >
       <main className="flex h-screen">
         <Sidebar />
-        <Grid
+        <Grid1
           widgetInstances={widgetInstances}
-          onDelete={handleDelete}
           onContextMenu={handleContextMenu}
         />
         {contextMenu && (
           <ContextMenu
-            x={contextMenu.x}
-            y={contextMenu.y}
+            X={contextMenu.X}
+            Y={contextMenu.Y}
             menuRef={menuRef}
             onDelete={() => {
-              handleDelete(contextMenu.cellIndex);
+              if (contextMenu.widgetId) {
+                handleDelete(contextMenu.widgetId);
+              }
               closeContextMenu();
             }}
           />

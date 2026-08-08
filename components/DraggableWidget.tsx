@@ -3,22 +3,22 @@
 import { useDraggable } from "@dnd-kit/core";
 
 type Props = {
-  id: string;
-  icon: string;
-  name: string;
+  widgetType: string;
+  widgetIcon: string;
+  widgetName: string;
 };
 
 export default function DraggableWidget({
-  id,
-  icon,
-  name,
+  widgetType,
+  widgetIcon,
+  widgetName,
 }: Props) {
   const { attributes, listeners, setNodeRef, transform } =
     useDraggable({
-      id,
+      id: widgetType,
       data: {
         source: "sidebar",
-        type: id,
+        widgetType: widgetType,
       },
     });
 
@@ -36,7 +36,7 @@ export default function DraggableWidget({
       {...attributes}
       className="cursor-grab rounded-lg border bg-white p-3 shadow active:cursor-grabbing"
     >
-      {icon} {name}
+      {widgetIcon} {widgetName}
     </div>
   );
 }
