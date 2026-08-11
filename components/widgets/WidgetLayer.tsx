@@ -1,10 +1,15 @@
-import WidgetContainer from "../WidgetContainer";
+import WidgetContainer from "./WidgetContainer";
 import { WidgetInstance } from "@/types/widgetTypes";
 
 type Props = {
   widgetInstances: WidgetInstance[];
+  resizingWidgetId : string | null;
+  isResizing: boolean;
   columns: number;
   rows: number;
+  widgetRefs: React.MutableRefObject<
+    Record<string, HTMLDivElement | null>
+  >;
   onContextMenu: (
     x: number,
     y: number,
@@ -14,6 +19,9 @@ type Props = {
 
 export default function Grid({
   widgetInstances,
+  resizingWidgetId,
+  isResizing,
+  widgetRefs,
   onContextMenu,
   columns,
   rows,
@@ -39,6 +47,8 @@ export default function Grid({
         >
           <WidgetContainer
             widget={widget}
+            isResizing={resizingWidgetId === widget.id}
+            widgetRefs={widgetRefs}
             onContextMenu={onContextMenu}
           />
         </div>

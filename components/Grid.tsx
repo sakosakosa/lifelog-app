@@ -1,5 +1,5 @@
 import Cell from "./Cell";
-import WidgetContainer from "./WidgetContainer";
+import WidgetContainer from "./widgets/WidgetContainer";
 import { WidgetInstance } from "@/types/widgetTypes";
 
 type Props = {

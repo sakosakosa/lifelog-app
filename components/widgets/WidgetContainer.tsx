@@ -1,11 +1,16 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import WidgetRenderer from "./widgets/WidgetRenderer";
+import WidgetRenderer from "./WidgetRenderer";
+import ResizeHandle from "./ResizeHandle";
 import { WidgetInstance } from "@/types/widgetTypes";
 
 type Props = {
   widget: WidgetInstance;
+  isResizing: boolean;
+  widgetRefs: React.MutableRefObject<
+    Record<string, HTMLDivElement | null>
+  >;
   onContextMenu: (
     x: number,
     y: number,
@@ -15,6 +20,8 @@ type Props = {
 
 export default function WidgetContainer({
   widget,
+  isResizing,
+  widgetRefs,
   onContextMenu,
 }: Props) {
   const {
@@ -32,7 +39,10 @@ export default function WidgetContainer({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(element) => {
+        setNodeRef(element);
+        widgetRefs.current[widget.id] = element;
+      }}
       {...listeners}
       {...attributes}
       className="h-full w-full cursor-grab active:cursor-grabbing"
@@ -46,16 +56,13 @@ export default function WidgetContainer({
         onContextMenu(e.clientX, e.clientY, widget.id);
       }}
     >
-      <div className="relative h-full w-full cursor-grab">
+      <div className="relative h-full w-full cursor-grab"
+        style={{
+          visibility: isResizing ? "hidden" : "visible",
+        }}
+      >
         <WidgetRenderer widget={widget} />
-        <button
-          type="button"
-          className="absolute right-0 bottom-0 z-10 h-3 w-3 cursor-se-resize"
-          aria-label="ウィジェットのサイズを変更"
-          onPointerDown={(event) => {
-            event.stopPropagation();
-          }}
-        />
+        <ResizeHandle widgetId={widget.id} />
       </div>
     </div>
   );
