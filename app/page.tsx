@@ -61,6 +61,45 @@ export default function Home() {
   const menuRef = useRef<HTMLDivElement>(null);
   const isLoaded = useRef(false);
 
+  function isOverlapping(
+    targetWidget: WidgetInstance,
+    newWidth: number,
+    newHeight: number
+  ) {
+    const targetRight = targetWidget.x + newWidth;
+    const targetBottom = targetWidget.y + newHeight;
+
+    return widgetInstances.some((widget) => {
+      // 自分自身は判定しない
+      if (widget.id === targetWidget.id) {
+        return false;
+      }
+
+      const widgetRight = widget.x + widget.width;
+      const widgetBottom = widget.y + widget.height;
+
+      return (
+        targetWidget.x < widgetRight &&
+        targetRight > widget.x &&
+        targetWidget.y < widgetBottom &&
+        targetBottom > widget.y
+      );
+    });
+  }
+
+  function isOutsideGrid(
+    widget: WidgetInstance,
+    newX: number,
+    newY: number
+  ) {
+    return (
+      newX < 0 ||
+      newY < 0 ||
+      newX + widget.width > 10 ||
+      newY + widget.height > 10
+    );
+  }
+
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
 
@@ -120,176 +159,205 @@ export default function Home() {
   }
 
 
-function handleDragEnd(event: DragEndEvent) {
-  const { active, over } = event;
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
 
-  const source = active.data.current?.source;
+    const source = active.data.current?.source;
 
-  // =========================
-  // リサイズ終了
-  // =========================
-  if (source === "resize") {
-    const widgetId = active.data.current?.widgetId;
+    // =========================
+    // リサイズ終了
+    // =========================
+    if (source === "resize") {
+      const widgetId = active.data.current?.widgetId;
 
-    if (!widgetId || !resizeState) {
-      return;
-    }
+      if (!widgetId || !resizeState) {
+        return;
+      }
 
-    const element = widgetRefs.current[widgetId];
+      const element = widgetRefs.current[widgetId];
 
-    if (!element) {
-      return;
-    }
+      if (!element) {
+        return;
+      }
 
-    const widget = widgetInstances.find(
-      (widget) => widget.id === widgetId
-    );
+      const widget = widgetInstances.find(
+        (widget) => widget.id === widgetId
+      );
 
-    if (!widget) {
-      return;
-    }
+      if (!widget) {
+        return;
+      }
 
-    // WidgetLayerのGridを取得
-    const gridElement = element.parentElement?.parentElement;
+      // WidgetLayerのGridを取得
+      const gridElement = element.parentElement?.parentElement;
 
-    if (!gridElement) {
-      return;
-    }
+      if (!gridElement) {
+        return;
+      }
 
-    // Gridのgapを取得
-    const gridStyle = window.getComputedStyle(gridElement);
+      // Gridのgapを取得
+      const gridStyle = window.getComputedStyle(gridElement);
 
-    const columnGap = parseFloat(gridStyle.columnGap);
-    const rowGap = parseFloat(gridStyle.rowGap);
+      const columnGap = parseFloat(gridStyle.columnGap);
+      const rowGap = parseFloat(gridStyle.rowGap);
 
-    // リサイズ開始時のWidget幅・高さから
-    // 1セルの実寸を計算
-    const cellWidth =
-      (resizeState.initialWidth -
-        columnGap * (widget.width - 1)) /
-      widget.width;
+      // リサイズ開始時のWidget幅・高さから
+      // 1セルの実寸を計算
+      const cellWidth =
+        (resizeState.initialWidth -
+          columnGap * (widget.width - 1)) /
+        widget.width;
 
-    const cellHeight =
-      (resizeState.initialHeight -
-        rowGap * (widget.height - 1)) /
-      widget.height;
+      const cellHeight =
+        (resizeState.initialHeight -
+          rowGap * (widget.height - 1)) /
+        widget.height;
 
-    // 最終的なpxサイズからspanを計算
-    const newWidth = Math.max(
-      1,
-      Math.round(
-        (resizeState.width + columnGap) /
+      // 最終的なpxサイズからspanを計算
+      const newWidth = Math.max(
+        1,
+        Math.round(
+          (resizeState.width + columnGap) /
           (cellWidth + columnGap)
-      )
-    );
+        )
+      );
 
-    const newHeight = Math.max(
-      1,
-      Math.round(
-        (resizeState.height + rowGap) /
+      const newHeight = Math.max(
+        1,
+        Math.round(
+          (resizeState.height + rowGap) /
           (cellHeight + rowGap)
-      )
-    );
+        )
+      );
 
-    // Gridからはみ出さないように制限
-    const maxWidth = 10 - widget.x;
-    const maxHeight = 10 - widget.y;
+      // Gridからはみ出さないように制限
+      const maxWidth = 10 - widget.x;
+      const maxHeight = 10 - widget.y;
 
-    const finalWidth = Math.min(
-      newWidth,
-      maxWidth
-    );
+      const finalWidth = Math.min(
+        newWidth,
+        maxWidth
+      );
 
-    const finalHeight = Math.min(
-      newHeight,
-      maxHeight
-    );
+      const finalHeight = Math.min(
+        newHeight,
+        maxHeight
+      );
 
-    setWidgetInstances((prev) =>
-      prev.map((widget) =>
-        widget.id === widgetId
-          ? {
+      // 他のWidgetと重複するか確認
+      const overlapping = isOverlapping(
+        widget,
+        finalWidth,
+        finalHeight
+      );
+
+      if (overlapping) {
+        setResizingWidgetId(null);
+        setResizeState(null);
+        return;
+      }
+
+      setWidgetInstances((prev) =>
+        prev.map((widget) =>
+          widget.id === widgetId
+            ? {
               ...widget,
               width: finalWidth,
               height: finalHeight,
             }
-          : widget
-      )
-    );
+            : widget
+        )
+      );
 
-    // 元Widgetを表示
-    setResizingWidgetId(null);
+      // 元Widgetを表示
+      setResizingWidgetId(null);
 
-    // Overlayを削除
-    setResizeState(null);
+      // Overlayを削除
+      setResizeState(null);
 
-    return;
-  }
+      return;
+    }
 
-  // =========================
-  // ここから通常のDragEnd
-  // =========================
+    // =========================
+    // ここから通常のDragEnd
+    // =========================
 
-  if (!over) {
-    return;
-  }
+    if (!over) {
+      return;
+    }
 
-  const { x, y } = over.data.current ?? {};
+    const { x, y } = over.data.current ?? {};
 
-  if (
-    typeof x !== "number" ||
-    typeof y !== "number"
-  ) {
-    return;
-  }
+    if (
+      typeof x !== "number" ||
+      typeof y !== "number"
+    ) {
+      return;
+    }
 
-  // サイドバー → セル：新規作成
-  if (source === "sidebar") {
-    const widget = createWidget(
-      active.data.current.widgetType,
-      x,
-      y
-    );
+    // サイドバー → セル：新規作成
+    if (source === "sidebar") {
+      const widget = createWidget(
+        active.data.current.widgetType,
+        x,
+        y
+      );
 
-    setWidgetInstances((prev) => [
-      ...prev,
-      widget,
-    ]);
+      setWidgetInstances((prev) => [
+        ...prev,
+        widget,
+      ]);
 
-    return;
-  }
+      return;
+    }
 
-  // セル → セル：既存Widgetを移動
-  if (source === "grid") {
-    const widgetId =
-      active.data.current.widgetId;
+    // セル → セル：既存Widgetを移動
+    if (source === "grid") {
+      const widgetId = active.data.current.widgetId;
 
-    setWidgetInstances((prev) => {
-      const isOccupied = prev.some(
-        (widget) =>
-          widget.id !== widgetId &&
-          widget.x === x &&
-          widget.y === y
+      const widget = widgetInstances.find(
+        (widget) => widget.id === widgetId
+      );
+
+      if (!widget) {
+        return;
+      }
+
+      // Grid外にはみ出していたらキャンセル
+      if (isOutsideGrid(widget, x, y)) {
+        return;
+      }
+
+      // 他のWidgetと重なっていたらキャンセル
+      const isOccupied = isOverlapping(
+        {
+          ...widget,
+          x,
+          y,
+        },
+        widget.width,
+        widget.height
       );
 
       if (isOccupied) {
-        return prev;
+        return;
       }
 
-      return prev.map((widget) =>
-        widget.id === widgetId
-          ? {
+      setWidgetInstances((prev) =>
+        prev.map((widget) =>
+          widget.id === widgetId
+            ? {
               ...widget,
               x,
               y,
             }
-          : widget
+            : widget
+        )
       );
-    });
 
-    return;
+      return;
+    }
   }
-}
 
   function handleDelete(id: string) {
     setWidgetInstances((prev) => prev.filter((w) => w.id !== id));
