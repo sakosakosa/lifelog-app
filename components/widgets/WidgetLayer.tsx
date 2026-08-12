@@ -3,7 +3,7 @@ import { WidgetInstance } from "@/types/widgetTypes";
 
 type Props = {
   widgetInstances: WidgetInstance[];
-  resizingWidgetId : string | null;
+  resizingWidgetId: string | null;
   isResizing: boolean;
   columns: number;
   rows: number;
@@ -15,26 +15,31 @@ type Props = {
     y: number,
     widgetId: string
   ) => void;
+  onContentChange: (
+    id: string,
+    content: string
+  ) => void;
 };
 
-export default function Grid({
+export default function WidgetLayer({
   widgetInstances,
   resizingWidgetId,
   isResizing,
   widgetRefs,
   onContextMenu,
+  onContentChange,
   columns,
   rows,
 }: Props) {
 
   return (
     <div
-  className="absolute inset-0 grid gap-1 p-4"
-  style={{
-    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-    gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-  }}
->
+      className="absolute inset-0 grid gap-1 p-4"
+      style={{
+        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+      }}
+    >
 
       {/* ウィジェット（同じgrid上にx,yで配置） */}
       {widgetInstances.map((widget) => (
@@ -50,6 +55,7 @@ export default function Grid({
             isResizing={resizingWidgetId === widget.id}
             widgetRefs={widgetRefs}
             onContextMenu={onContextMenu}
+            onContentChange={onContentChange}
           />
         </div>
       ))}

@@ -363,6 +363,19 @@ export default function Home() {
     setWidgetInstances((prev) => prev.filter((w) => w.id !== id));
   }
 
+  function handleContentChange(id: string, content: string) {
+    setWidgetInstances((prev) =>
+      prev.map((widget) =>
+        widget.id === id
+          ? {
+            ...widget,
+            content,
+          }
+          : widget
+      )
+    );
+  }
+
   function handleContextMenu(X: number, Y: number, widgetId: string | null) {
     setContextMenu({ X, Y, widgetId });
   }
@@ -412,6 +425,7 @@ export default function Home() {
           resizingWidgetId={resizingWidgetId}
           widgetRefs={widgetRefs}
           onContextMenu={handleContextMenu}
+          onContentChange={handleContentChange}
         />
         {contextMenu && (
           <ContextMenu

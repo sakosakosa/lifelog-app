@@ -17,7 +17,7 @@ export default function WidgetResizingOverlay({
 
   return (
     <div
-      className="fixed pointer-events-none"
+      className="fixed pointer-events-none z-20"
       style={{
         left: resizeState.x,
         top: resizeState.y,

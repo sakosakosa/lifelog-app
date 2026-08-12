@@ -15,6 +15,10 @@ type Props = {
         y: number,
         widgetId: string
     ) => void;
+    onContentChange: (
+        id: string,
+        content: string
+    ) => void;
 };
 
 const columns = 10;
@@ -28,6 +32,7 @@ export default function Grid({
     resizingWidgetId,
     widgetRefs,
     onContextMenu,
+    onContentChange,
 }: Props) {
     const resizingWidget = resizeState
         ? widgetInstances.find(
@@ -46,6 +51,7 @@ export default function Grid({
                 widgetInstances={widgetInstances}
                 resizingWidgetId={resizingWidgetId}
                 widgetRefs={widgetRefs}
+                onContentChange={onContentChange}
                 onContextMenu={onContextMenu}
                 columns={columns}
                 rows={rows}

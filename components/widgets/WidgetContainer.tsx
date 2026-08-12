@@ -4,6 +4,7 @@ import { useDraggable } from "@dnd-kit/core";
 import WidgetRenderer from "./WidgetRenderer";
 import ResizeHandle from "./ResizeHandle";
 import { WidgetInstance } from "@/types/widgetTypes";
+import DragHandle from "./DragHandle";
 
 type Props = {
   widget: WidgetInstance;
@@ -16,6 +17,10 @@ type Props = {
     y: number,
     widgetId: string
   ) => void;
+  onContentChange: (
+    id: string,
+    content: string
+  ) => void;
 };
 
 export default function WidgetContainer({
@@ -23,6 +28,7 @@ export default function WidgetContainer({
   isResizing,
   widgetRefs,
   onContextMenu,
+  onContentChange,
 }: Props) {
   const {
     attributes,
@@ -43,9 +49,7 @@ export default function WidgetContainer({
         setNodeRef(element);
         widgetRefs.current[widget.id] = element;
       }}
-      {...listeners}
-      {...attributes}
-      className="h-full w-full cursor-grab active:cursor-grabbing"
+      className="relative h-full w-full"
       style={{
         transform: transform
           ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
@@ -56,12 +60,19 @@ export default function WidgetContainer({
         onContextMenu(e.clientX, e.clientY, widget.id);
       }}
     >
-      <div className="relative h-full w-full cursor-grab"
+      <DragHandle
+        attributes={attributes}
+        listeners={listeners}
+      />
+      <div className="relative h-full w-full"
         style={{
           visibility: isResizing ? "hidden" : "visible",
         }}
       >
-        <WidgetRenderer widget={widget} />
+        <WidgetRenderer
+          widget={widget}
+          onContentChange={onContentChange}
+        />
         <ResizeHandle widgetId={widget.id} />
       </div>
     </div>
