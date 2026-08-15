@@ -15,10 +15,7 @@ type Props = {
     y: number,
     widgetId: string
   ) => void;
-  onContentChange: (
-    id: string,
-    content: string
-  ) => void;
+  onWidgetChange: (widget: WidgetInstance) => void;
 };
 
 export default function WidgetLayer({
@@ -27,7 +24,7 @@ export default function WidgetLayer({
   isResizing,
   widgetRefs,
   onContextMenu,
-  onContentChange,
+  onWidgetChange,
   columns,
   rows,
 }: Props) {
@@ -55,7 +52,7 @@ export default function WidgetLayer({
             isResizing={resizingWidgetId === widget.id}
             widgetRefs={widgetRefs}
             onContextMenu={onContextMenu}
-            onContentChange={onContentChange}
+            onWidgetChange={onWidgetChange}
           />
         </div>
       ))}

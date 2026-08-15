@@ -1,3 +1,5 @@
+import type { JSONContent } from "@tiptap/core";
+
 export type WidgetType =
   | "diary"
   | "spotify"
@@ -11,16 +13,62 @@ export type Layout = {
 
 export type BaseWidget = {
   id: string;
-  type: WidgetType;
   x: number;
   y: number;
   width: number;
   height: number;
 };
 
+/* =========================
+   Diary
+========================= */
+
 export type DiaryWidget = BaseWidget & {
   type: "diary";
-  content: string;
+  selectedDate: string;
+  entries: DiaryEntry[];
 };
 
-export type WidgetInstance = BaseWidget | DiaryWidget;
+export type DiaryEntry = {
+  id: string;
+  date: string;
+  blocks: DiaryBlock[];
+};
+
+export type DiaryBlock =
+  | TextBlock
+  | CaptureBlock;
+
+export type TextBlock = {
+  id: string;
+  type: "text";
+  content: JSONContent;
+};
+
+export type CaptureBlock = {
+  id: string;
+  type: "capture";
+  captureType:
+    | "spotify"
+    | "timer"
+    | "weight";
+  sourceId: string;
+};
+
+export type SpotifyWidget = BaseWidget & {
+  type: "spotify";
+};
+
+export type ClockWidget = BaseWidget & {
+  type: "clock";
+};
+
+export type WeightWidget = BaseWidget & {
+  type: "weight";
+};
+
+export type WidgetInstance =
+  | DiaryWidget
+  | SpotifyWidget
+  | ClockWidget
+  | WeightWidget;

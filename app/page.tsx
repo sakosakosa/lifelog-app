@@ -363,14 +363,11 @@ export default function Home() {
     setWidgetInstances((prev) => prev.filter((w) => w.id !== id));
   }
 
-  function handleContentChange(id: string, content: string) {
+  function handleWidgetChange(updatedWidget: WidgetInstance) {
     setWidgetInstances((prev) =>
       prev.map((widget) =>
-        widget.id === id
-          ? {
-            ...widget,
-            content,
-          }
+        widget.id === updatedWidget.id
+          ? updatedWidget
           : widget
       )
     );
@@ -412,6 +409,7 @@ export default function Home() {
 
   return (
     <DndContext
+      id="main-dnd-context"
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
@@ -425,7 +423,7 @@ export default function Home() {
           resizingWidgetId={resizingWidgetId}
           widgetRefs={widgetRefs}
           onContextMenu={handleContextMenu}
-          onContentChange={handleContentChange}
+          onWidgetChange={handleWidgetChange}
         />
         {contextMenu && (
           <ContextMenu

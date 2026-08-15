@@ -6,24 +6,19 @@ import WeightWidget from "./WeightWidget";
 
 type Props = {
   widget: WidgetInstance;
-  onContentChange: (
-    id: string,
-    content: string
-  ) => void;
+  onWidgetChange: (widget: WidgetInstance) => void;
 };
 
 export default function WidgetRenderer({
   widget,
-  onContentChange,
+  onWidgetChange,
 }: Props) {
   switch (widget.type) {
     case "diary":
       return (
         <DiaryWidget
-          content={widget.content}
-          onChange={(content) => {
-            onContentChange(widget.id, content);
-          }}
+          widget={widget}
+          onChange={onWidgetChange}
         />
       );
 

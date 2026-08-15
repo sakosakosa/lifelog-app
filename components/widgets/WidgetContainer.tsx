@@ -17,10 +17,7 @@ type Props = {
     y: number,
     widgetId: string
   ) => void;
-  onContentChange: (
-    id: string,
-    content: string
-  ) => void;
+  onWidgetChange: (widget: WidgetInstance) => void;
 };
 
 export default function WidgetContainer({
@@ -28,7 +25,7 @@ export default function WidgetContainer({
   isResizing,
   widgetRefs,
   onContextMenu,
-  onContentChange,
+  onWidgetChange,
 }: Props) {
   const {
     attributes,
@@ -71,7 +68,7 @@ export default function WidgetContainer({
       >
         <WidgetRenderer
           widget={widget}
-          onContentChange={onContentChange}
+          onWidgetChange={onWidgetChange}
         />
         <ResizeHandle widgetId={widget.id} />
       </div>
