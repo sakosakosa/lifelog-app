@@ -26,7 +26,6 @@ export type BaseWidget = {
 export type DiaryWidget = BaseWidget & {
   type: "diary";
   selectedDate: string;
-  entries: DiaryEntry[];
 };
 
 export type DiaryEntry = {

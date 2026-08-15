@@ -3,11 +3,15 @@
 import { useDraggable } from "@dnd-kit/core";
 import WidgetRenderer from "./WidgetRenderer";
 import ResizeHandle from "./ResizeHandle";
-import { WidgetInstance } from "@/types/widgetTypes";
+import {
+  WidgetInstance,
+  DiaryEntry,
+} from "@/types/widgetTypes";
 import DragHandle from "./DragHandle";
 
 type Props = {
   widget: WidgetInstance;
+  diaryEntries: DiaryEntry[];
   isResizing: boolean;
   widgetRefs: React.MutableRefObject<
     Record<string, HTMLDivElement | null>
@@ -18,14 +22,17 @@ type Props = {
     widgetId: string
   ) => void;
   onWidgetChange: (widget: WidgetInstance) => void;
+  onDiaryChange: (entries: DiaryEntry[]) => void;
 };
 
 export default function WidgetContainer({
   widget,
+  diaryEntries,
   isResizing,
   widgetRefs,
   onContextMenu,
   onWidgetChange,
+  onDiaryChange,
 }: Props) {
   const {
     attributes,
@@ -54,22 +61,33 @@ export default function WidgetContainer({
       }}
       onContextMenu={(e) => {
         e.preventDefault();
-        onContextMenu(e.clientX, e.clientY, widget.id);
+        onContextMenu(
+          e.clientX,
+          e.clientY,
+          widget.id
+        );
       }}
     >
       <DragHandle
         attributes={attributes}
         listeners={listeners}
       />
-      <div className="relative h-full w-full"
+
+      <div
+        className="relative h-full w-full"
         style={{
-          visibility: isResizing ? "hidden" : "visible",
+          visibility: isResizing
+            ? "hidden"
+            : "visible",
         }}
       >
         <WidgetRenderer
           widget={widget}
+          diaryEntries={diaryEntries}
           onWidgetChange={onWidgetChange}
+          onDiaryChange={onDiaryChange}
         />
+
         <ResizeHandle widgetId={widget.id} />
       </div>
     </div>

@@ -7,7 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import Grid1 from "@/components/Grid1";
 import ContextMenu from "@/components/ContextMenu";
-import { WidgetInstance } from "@/types/widgetTypes";
+import { WidgetInstance, DiaryEntry, } from "@/types/widgetTypes";
 import { ResizeState } from "@/types/resizeTypes";
 import { createWidget } from "@/lib/createWidget";
 
@@ -50,6 +50,7 @@ const collisionDetectionStrategy: CollisionDetection = (args) => {
 
 export default function Home() {
   const [widgetInstances, setWidgetInstances] = useState<WidgetInstance[]>([]);
+  const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
   const [resizingWidgetId, setResizingWidgetId] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -381,6 +382,12 @@ export default function Home() {
     setContextMenu(null);
   }
 
+  function handleDiaryChange(
+    updatedEntries: DiaryEntry[]
+  ) {
+    setDiaryEntries(updatedEntries);
+  }
+
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       if (menuRef.current && menuRef.current.contains(event.target as Node)) {
@@ -396,14 +403,37 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoaded.current) return;
-    localStorage.setItem("widgetInstances", JSON.stringify(widgetInstances));
-  }, [widgetInstances]);
+
+    localStorage.setItem(
+      "widgetInstances",
+      JSON.stringify(widgetInstances)
+    );
+
+    localStorage.setItem(
+      "diaryEntries",
+      JSON.stringify(diaryEntries)
+    );
+  }, [widgetInstances, diaryEntries]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("widgetInstances");
-    if (saved) {
-      setWidgetInstances(JSON.parse(saved));
+    const savedWidgets =
+      localStorage.getItem("widgetInstances");
+
+    if (savedWidgets) {
+      setWidgetInstances(
+        JSON.parse(savedWidgets)
+      );
     }
+
+    const savedDiaryEntries =
+      localStorage.getItem("diaryEntries");
+
+    if (savedDiaryEntries) {
+      setDiaryEntries(
+        JSON.parse(savedDiaryEntries)
+      );
+    }
+
     isLoaded.current = true;
   }, []);
 
@@ -419,11 +449,13 @@ export default function Home() {
         <Sidebar />
         <Grid1
           widgetInstances={widgetInstances}
+          diaryEntries={diaryEntries}
           resizeState={resizeState}
           resizingWidgetId={resizingWidgetId}
           widgetRefs={widgetRefs}
           onContextMenu={handleContextMenu}
           onWidgetChange={handleWidgetChange}
+          onDiaryChange={handleDiaryChange}
         />
         {contextMenu && (
           <ContextMenu

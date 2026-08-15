@@ -1,8 +1,12 @@
 import WidgetContainer from "./WidgetContainer";
-import { WidgetInstance } from "@/types/widgetTypes";
+import {
+  WidgetInstance,
+  DiaryEntry,
+} from "@/types/widgetTypes";
 
 type Props = {
   widgetInstances: WidgetInstance[];
+  diaryEntries: DiaryEntry[];
   resizingWidgetId: string | null;
   isResizing: boolean;
   columns: number;
@@ -16,19 +20,21 @@ type Props = {
     widgetId: string
   ) => void;
   onWidgetChange: (widget: WidgetInstance) => void;
+  onDiaryChange: (entries: DiaryEntry[]) => void;
 };
 
 export default function WidgetLayer({
   widgetInstances,
+  diaryEntries,
   resizingWidgetId,
   isResizing,
   widgetRefs,
   onContextMenu,
   onWidgetChange,
+  onDiaryChange,
   columns,
   rows,
 }: Props) {
-
   return (
     <div
       className="absolute inset-0 grid gap-1 p-4"
@@ -37,7 +43,6 @@ export default function WidgetLayer({
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
-
       {/* ウィジェット（同じgrid上にx,yで配置） */}
       {widgetInstances.map((widget) => (
         <div
@@ -49,10 +54,12 @@ export default function WidgetLayer({
         >
           <WidgetContainer
             widget={widget}
+            diaryEntries={diaryEntries}
             isResizing={resizingWidgetId === widget.id}
             widgetRefs={widgetRefs}
             onContextMenu={onContextMenu}
             onWidgetChange={onWidgetChange}
+            onDiaryChange={onDiaryChange}
           />
         </div>
       ))}

@@ -1,11 +1,15 @@
 import GridBackground from "./GridBackground";
 import WidgetLayer from "@/components/widgets/WidgetLayer";
 import Overlay from "./Overlay";
-import { WidgetInstance } from "@/types/widgetTypes";
+import {
+    WidgetInstance,
+    DiaryEntry,
+} from "@/types/widgetTypes";
 
 type Props = {
     widgetInstances: WidgetInstance[];
-    resizeState: ResizeState | null
+    diaryEntries: DiaryEntry[];
+    resizeState: ResizeState | null;
     resizingWidgetId: string | null;
     widgetRefs: React.MutableRefObject<
         Record<string, HTMLDivElement | null>
@@ -16,20 +20,21 @@ type Props = {
         widgetId: string
     ) => void;
     onWidgetChange: (widget: WidgetInstance) => void;
+    onDiaryChange: (entries: DiaryEntry[]) => void;
 };
 
 const columns = 10;
 const rows = 10;
 
-
-
 export default function Grid({
     widgetInstances,
+    diaryEntries,
     resizeState,
     resizingWidgetId,
     widgetRefs,
     onContextMenu,
     onWidgetChange,
+    onDiaryChange,
 }: Props) {
     const resizingWidget = resizeState
         ? widgetInstances.find(
@@ -46,9 +51,11 @@ export default function Grid({
 
             <WidgetLayer
                 widgetInstances={widgetInstances}
+                diaryEntries={diaryEntries}
                 resizingWidgetId={resizingWidgetId}
                 widgetRefs={widgetRefs}
                 onWidgetChange={onWidgetChange}
+                onDiaryChange={onDiaryChange}
                 onContextMenu={onContextMenu}
                 columns={columns}
                 rows={rows}
@@ -57,8 +64,8 @@ export default function Grid({
             <Overlay
                 resizeState={resizeState}
                 widget={resizingWidget}
+                diaryEntries={diaryEntries}
             />
         </div>
-
-    )
+    );
 }

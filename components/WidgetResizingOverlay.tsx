@@ -1,15 +1,20 @@
 import { ResizeState } from "@/types/resizeTypes";
-import { WidgetInstance } from "@/types/widgetTypes";
+import {
+  WidgetInstance,
+  DiaryEntry,
+} from "@/types/widgetTypes";
 import WidgetRenderer from "./widgets/WidgetRenderer";
 
 type Props = {
   resizeState: ResizeState | null;
   widget: WidgetInstance | null;
+  diaryEntries: DiaryEntry[];
 };
 
 export default function WidgetResizingOverlay({
   resizeState,
   widget,
+  diaryEntries,
 }: Props) {
   if (!resizeState || !widget) {
     return null;
@@ -25,7 +30,12 @@ export default function WidgetResizingOverlay({
         height: resizeState.height,
       }}
     >
-      <WidgetRenderer widget={widget} />
+      <WidgetRenderer
+        widget={widget}
+        diaryEntries={diaryEntries}
+        onWidgetChange={() => {}}
+        onDiaryChange={() => {}}
+      />
     </div>
   );
 }
