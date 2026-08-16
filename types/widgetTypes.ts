@@ -3,7 +3,7 @@ import type { JSONContent } from "@tiptap/core";
 export type WidgetType =
   | "diary"
   | "spotify"
-  | "clock"
+  | "timer"
   | "weight";
 
 export type Layout = {
@@ -54,20 +54,50 @@ export type CaptureBlock = {
   sourceId: string;
 };
 
+/* =========================
+   Spotify
+========================= */
+
 export type SpotifyWidget = BaseWidget & {
   type: "spotify";
 };
 
-export type ClockWidget = BaseWidget & {
-  type: "clock";
+/* =========================
+   Timer
+========================= */
+
+export type TimerWidget = BaseWidget & {
+  type: "timer";
 };
+
+export type TimerTask = {
+  id: string;
+  taskName: string;
+  sessions: TimerSession[];
+};
+
+export type TimerSession = {
+  id: string;
+  date: string;
+  startedAt: string;
+  endedAt: string;
+  duration: number;
+};
+
+/* =========================
+   Weight
+========================= */
 
 export type WeightWidget = BaseWidget & {
   type: "weight";
 };
 
+/* =========================
+   Widget Instance
+========================= */
+
 export type WidgetInstance =
   | DiaryWidget
   | SpotifyWidget
-  | ClockWidget
+  | TimerWidget
   | WeightWidget;

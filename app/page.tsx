@@ -7,7 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import Grid1 from "@/components/Grid1";
 import ContextMenu from "@/components/ContextMenu";
-import { WidgetInstance, DiaryEntry, } from "@/types/widgetTypes";
+import { WidgetInstance, DiaryEntry, TimerTask, } from "@/types/widgetTypes";
 import { ResizeState } from "@/types/resizeTypes";
 import { createWidget } from "@/lib/createWidget";
 
@@ -51,6 +51,7 @@ const collisionDetectionStrategy: CollisionDetection = (args) => {
 export default function Home() {
   const [widgetInstances, setWidgetInstances] = useState<WidgetInstance[]>([]);
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
+  const [timerTasks, setTimerTasks] = useState<TimerTask[]>([]);
   const [resizeState, setResizeState] = useState<ResizeState | null>(null);
   const [resizingWidgetId, setResizingWidgetId] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -388,6 +389,12 @@ export default function Home() {
     setDiaryEntries(updatedEntries);
   }
 
+  function handleTimerChange(
+    updatedTasks: TimerTask[]
+  ) {
+    setTimerTasks(updatedTasks);
+  }
+
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       if (menuRef.current && menuRef.current.contains(event.target as Node)) {
@@ -413,7 +420,16 @@ export default function Home() {
       "diaryEntries",
       JSON.stringify(diaryEntries)
     );
-  }, [widgetInstances, diaryEntries]);
+
+    localStorage.setItem(
+      "timerTasks",
+      JSON.stringify(timerTasks)
+    );
+  }, [
+    widgetInstances,
+    diaryEntries,
+    timerTasks,
+  ]);
 
   useEffect(() => {
     const savedWidgets =
@@ -434,6 +450,15 @@ export default function Home() {
       );
     }
 
+    const savedTimerTasks =
+      localStorage.getItem("timerTasks");
+
+    if (savedTimerTasks) {
+      setTimerTasks(
+        JSON.parse(savedTimerTasks)
+      );
+    }
+
     isLoaded.current = true;
   }, []);
 
@@ -450,12 +475,14 @@ export default function Home() {
         <Grid1
           widgetInstances={widgetInstances}
           diaryEntries={diaryEntries}
+          timerTasks={timerTasks}
           resizeState={resizeState}
           resizingWidgetId={resizingWidgetId}
           widgetRefs={widgetRefs}
           onContextMenu={handleContextMenu}
           onWidgetChange={handleWidgetChange}
           onDiaryChange={handleDiaryChange}
+          onTimerChange={handleTimerChange}
         />
         {contextMenu && (
           <ContextMenu

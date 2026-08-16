@@ -38,10 +38,10 @@ export function createWidget(
         type: "spotify",
       };
 
-    case "clock":
+    case "timer":
       return {
         ...base,
-        type: "clock",
+        type: "timer",
       };
 
     case "weight":

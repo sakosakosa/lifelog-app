@@ -6,33 +6,56 @@ import ResizeHandle from "./ResizeHandle";
 import {
   WidgetInstance,
   DiaryEntry,
+  TimerTask,
 } from "@/types/widgetTypes";
 import DragHandle from "./DragHandle";
 
 type Props = {
   widget: WidgetInstance;
+
   diaryEntries: DiaryEntry[];
+  timerTasks: TimerTask[];
+
   isResizing: boolean;
+
   widgetRefs: React.MutableRefObject<
     Record<string, HTMLDivElement | null>
   >;
+
   onContextMenu: (
     x: number,
     y: number,
     widgetId: string
   ) => void;
-  onWidgetChange: (widget: WidgetInstance) => void;
-  onDiaryChange: (entries: DiaryEntry[]) => void;
+
+  onWidgetChange: (
+    widget: WidgetInstance
+  ) => void;
+
+  onDiaryChange: (
+    entries: DiaryEntry[]
+  ) => void;
+
+  onTimerChange: (
+    tasks: TimerTask[]
+  ) => void;
 };
 
 export default function WidgetContainer({
   widget,
+
   diaryEntries,
+  timerTasks,
+
   isResizing,
+
   widgetRefs,
+
   onContextMenu,
+
   onWidgetChange,
   onDiaryChange,
+  onTimerChange,
 }: Props) {
   const {
     attributes,
@@ -41,6 +64,7 @@ export default function WidgetContainer({
     transform,
   } = useDraggable({
     id: widget.id,
+
     data: {
       source: "grid",
       widgetId: widget.id,
@@ -51,7 +75,9 @@ export default function WidgetContainer({
     <div
       ref={(element) => {
         setNodeRef(element);
-        widgetRefs.current[widget.id] = element;
+
+        widgetRefs.current[widget.id] =
+          element;
       }}
       className="relative h-full w-full"
       style={{
@@ -61,6 +87,7 @@ export default function WidgetContainer({
       }}
       onContextMenu={(e) => {
         e.preventDefault();
+
         onContextMenu(
           e.clientX,
           e.clientY,
@@ -83,12 +110,26 @@ export default function WidgetContainer({
       >
         <WidgetRenderer
           widget={widget}
+
           diaryEntries={diaryEntries}
-          onWidgetChange={onWidgetChange}
-          onDiaryChange={onDiaryChange}
+          timerTasks={timerTasks}
+
+          onWidgetChange={
+            onWidgetChange
+          }
+
+          onDiaryChange={
+            onDiaryChange
+          }
+
+          onTimerChange={
+            onTimerChange
+          }
         />
 
-        <ResizeHandle widgetId={widget.id} />
+        <ResizeHandle
+          widgetId={widget.id}
+        />
       </div>
     </div>
   );

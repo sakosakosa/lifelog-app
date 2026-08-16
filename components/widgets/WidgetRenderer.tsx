@@ -1,26 +1,45 @@
 import {
   WidgetInstance,
   DiaryEntry,
+  TimerTask,
 } from "@/types/widgetTypes";
+
 import DiaryWidget from "./DiaryWidget";
 import SpotifyWidget from "./SpotifyWidget";
-import ClockWidget from "./ClockWidget";
+import TimerWidget from "./TimerWidget";
 import WeightWidget from "./WeightWidget";
 
 type Props = {
   widget: WidgetInstance;
+
   diaryEntries: DiaryEntry[];
-  onWidgetChange: (widget: WidgetInstance) => void;
-  onDiaryChange: (entries: DiaryEntry[]) => void;
+  timerTasks: TimerTask[];
+
+  onWidgetChange: (
+    widget: WidgetInstance
+  ) => void;
+
+  onDiaryChange: (
+    entries: DiaryEntry[]
+  ) => void;
+
+  onTimerChange: (
+    tasks: TimerTask[]
+  ) => void;
 };
 
 export default function WidgetRenderer({
   widget,
+
   diaryEntries,
+  timerTasks,
+
   onWidgetChange,
   onDiaryChange,
+  onTimerChange,
 }: Props) {
   switch (widget.type) {
+
     case "diary":
       return (
         <DiaryWidget
@@ -31,11 +50,17 @@ export default function WidgetRenderer({
         />
       );
 
+    case "timer":
+      return (
+        <TimerWidget
+          widget={widget}
+          timerTasks={timerTasks}
+          onTimerChange={onTimerChange}
+        />
+      );
+
     case "spotify":
       return <SpotifyWidget />;
-
-    case "clock":
-      return <ClockWidget />;
 
     case "weight":
       return <WeightWidget />;

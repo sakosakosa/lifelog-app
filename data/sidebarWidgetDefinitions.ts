@@ -4,15 +4,16 @@ export const sidebarWidgetDefinitions = [
     widgetIcon: "📒",
     widgetName: "日記",
   },
-   {
+
+  {
+    widgetType: "timer",
+    widgetIcon: "🕒",
+    widgetName: "タイマー",
+  },
+  {
     widgetType: "spotify",
     widgetIcon: "🎵",
     widgetName: "Spotify",
-  },
-  {
-    widgetType: "clock",
-    widgetIcon: "🕒",
-    widgetName: "時計",
   },
   {
     widgetType: "weight",
