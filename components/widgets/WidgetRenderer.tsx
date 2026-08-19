@@ -4,10 +4,11 @@ import {
   TimerTask,
 } from "@/types/widgetTypes";
 
-import DiaryWidget from "./DiaryWidget";
+import DiaryWidget from "./DiaryWidget/DiaryWidget";
 import SpotifyWidget from "./SpotifyWidget";
-import TimerWidget from "./TimerWidget";
+import TimerWidget from "./TimerWidget/TimerWidget";
 import WeightWidget from "./WeightWidget";
+
 
 type Props = {
   widget: WidgetInstance;

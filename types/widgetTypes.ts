@@ -44,14 +44,37 @@ export type TextBlock = {
   content: JSONContent;
 };
 
-export type CaptureBlock = {
+export type CaptureBlock =
+  | TimerCaptureBlock
+  | SpotifyCaptureBlock
+  | WeightCaptureBlock;
+
+export type BaseCaptureBlock = {
   id: string;
   type: "capture";
-  captureType:
-    | "spotify"
-    | "timer"
-    | "weight";
-  sourceId: string;
+};
+
+/* =========================
+   Timer Capture
+========================= */
+
+export type TimerCaptureBlock =
+  BaseCaptureBlock & {
+    captureType: "timer";
+    data: TimerCaptureData;
+  };
+
+export type TimerCaptureData = {
+  taskName: string;
+  date: string;
+  sessions: TimerCaptureSession[];
+  totalDuration: number;
+};
+
+export type TimerCaptureSession = {
+  startedAt: string;
+  endedAt: string;
+  duration: number;
 };
 
 /* =========================

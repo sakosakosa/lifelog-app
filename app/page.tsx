@@ -1,6 +1,13 @@
 "use client";
 
-import { DndContext, pointerWithin, type CollisionDetection, } from "@dnd-kit/core";
+import {
+  DndContext,
+  PointerSensor,
+  pointerWithin,
+  useSensor,
+  useSensors,
+  type CollisionDetection,
+} from "@dnd-kit/core";
 import { closestCorners } from "@dnd-kit/core";
 import type { DragStartEvent, DragMoveEvent, DragEndEvent } from "@dnd-kit/core";
 import { useEffect, useState, useRef } from "react";
@@ -10,38 +17,122 @@ import ContextMenu from "@/components/ContextMenu";
 import { WidgetInstance, DiaryEntry, TimerTask, } from "@/types/widgetTypes";
 import { ResizeState } from "@/types/resizeTypes";
 import { createWidget } from "@/lib/createWidget";
+import { useCaptureStore } from "@/lib/stores/captureStore";
 
 const collisionDetectionStrategy: CollisionDetection = (args) => {
-  const { active, collisionRect, droppableContainers, droppableRects } = args;
+  const {
+    active,
+    collisionRect,
+    droppableContainers,
+    droppableRects,
+  } = args;
 
-  // サイドバーからの追加やリサイズは、ポインタ直下のセルを使う
-  if (active.data.current?.source !== "grid") {
+  // =========================
+  // Capture → Diary
+  // =========================
+  if (active.data.current?.source === "capture") {
+    const diaryContainer =
+      droppableContainers.find((container) => {
+        // Diary以外は対象外
+        if (
+          container.data.current?.type !== "diary"
+        ) {
+          return false;
+        }
+
+        const rect =
+          droppableRects.get(container.id);
+
+        if (!rect) {
+          return false;
+        }
+
+        // Captureはマウスポインタを基準に
+        // DiaryのDrop領域を判定
+        const pointerX =
+          args.pointerCoordinates?.x;
+
+        const pointerY =
+          args.pointerCoordinates?.y;
+
+        if (
+          pointerX === undefined ||
+          pointerY === undefined
+        ) {
+          return false;
+        }
+
+        return (
+          pointerX >= rect.left &&
+          pointerX < rect.right &&
+          pointerY >= rect.top &&
+          pointerY < rect.bottom
+        );
+      });
+
+    if (diaryContainer) {
+      return [
+        {
+          id: diaryContainer.id,
+          data: {
+            droppableContainer:
+              diaryContainer,
+            value: 1,
+          },
+        },
+      ];
+    }
+
+    return [];
+  }
+
+  // =========================
+  // サイドバーからの追加やリサイズ
+  // ポインタ直下のセルを使う
+  // =========================
+  if (
+    active.data.current?.source !== "grid"
+  ) {
     return pointerWithin(args);
   }
 
-  // セルからセルへの移動は、ドラッグ中ウィジェットの左上を使う
-  const left = collisionRect.left + 1;
-  const top = collisionRect.top + 1;
+  // =========================
+  // セルからセルへの移動
+  // ドラッグ中Widgetの左上を使う
+  // =========================
 
-  const target = droppableContainers.find((container) => {
-    const rect = droppableRects.get(container.id);
+  const left =
+    collisionRect.left + 1;
 
-    return (
-      rect &&
-      left >= rect.left &&
-      left < rect.right &&
-      top >= rect.top &&
-      top < rect.bottom
+  const top =
+    collisionRect.top + 1;
+
+  const target =
+    droppableContainers.find(
+      (container) => {
+        const rect =
+          droppableRects.get(container.id);
+
+        return (
+          rect &&
+          left >= rect.left &&
+          left < rect.right &&
+          top >= rect.top &&
+          top < rect.bottom
+        );
+      }
     );
-  });
 
-  if (!target) return [];
+  if (!target) {
+    return [];
+  }
 
   return [
     {
       id: target.id,
       data: {
-        droppableContainer: target,
+        droppableContainer:
+          target,
         value: 1,
       },
     },
@@ -49,6 +140,13 @@ const collisionDetectionStrategy: CollisionDetection = (args) => {
 };
 
 export default function Home() {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    })
+  );
   const [widgetInstances, setWidgetInstances] = useState<WidgetInstance[]>([]);
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
   const [timerTasks, setTimerTasks] = useState<TimerTask[]>([]);
@@ -62,6 +160,10 @@ export default function Home() {
   const widgetRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const menuRef = useRef<HTMLDivElement>(null);
   const isLoaded = useRef(false);
+  const setCaptureToInsert =
+    useCaptureStore(
+      (state) => state.setCaptureToInsert
+    );
 
   function isOverlapping(
     targetWidget: WidgetInstance,
@@ -163,7 +265,6 @@ export default function Home() {
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-
     const source = active.data.current?.source;
 
     // =========================
@@ -288,6 +389,41 @@ export default function Home() {
       return;
     }
 
+    // =========================
+    // capture要素を日記にドロップ時の処理
+    // =========================
+    if (source === "capture") {
+      const captureId = active.data.current?.id;
+      const captureType = active.data.current?.type;
+
+      const overType = over.data.current?.type;
+
+      if (
+        !captureId ||
+        !captureType ||
+        overType !== "diary"
+      ) {
+        return;
+      }
+
+      const diaryWidgetId =
+        over.data.current?.widgetId;
+
+      if (!diaryWidgetId) {
+        return;
+      }
+
+      setCaptureToInsert({
+        widgetId: diaryWidgetId,
+        id: captureId,
+        type: captureType,
+        requestId: crypto.randomUUID(),
+      });
+
+      return;
+    }
+
+    //セルの座標を取得
     const { x, y } = over.data.current ?? {};
 
     if (
@@ -465,6 +601,7 @@ export default function Home() {
   return (
     <DndContext
       id="main-dnd-context"
+      sensors={sensors}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}

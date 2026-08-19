@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { useDroppable } from "@dnd-kit/core";
+import { CaptureNode } from "./CaptureNode";
 import StarterKit from "@tiptap/starter-kit";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
@@ -10,6 +12,7 @@ import type {
   DiaryWidget as DiaryWidgetInstance,
   DiaryEntry,
 } from "@/types/widgetTypes";
+import { useCaptureStore } from "@/lib/stores/captureStore";
 
 type Props = {
   widget: DiaryWidgetInstance;
@@ -24,6 +27,23 @@ export default function DiaryWidget({
   onChange,
   onDiaryChange,
 }: Props) {
+
+  const { setNodeRef } = useDroppable({
+    id: `diary-${widget.id}`,
+    data: {
+      type: "diary",
+      widgetId: widget.id,
+    },
+  });
+  const captureToInsert =
+    useCaptureStore(
+      (state) => state.captureToInsert
+    );
+
+  const clearCaptureToInsert =
+    useCaptureStore(
+      (state) => state.clearCaptureToInsert
+    );
   // =========================
   // 最新の値を保持
   // =========================
@@ -72,6 +92,8 @@ export default function DiaryWidget({
       Placeholder.configure({
         placeholder: "今日の出来事を書いてみましょう",
       }),
+
+      CaptureNode,
     ],
 
     // IMEやブラウザによるスペルチェックを無効化
@@ -170,6 +192,53 @@ export default function DiaryWidget({
       onDiaryChange(updatedEntries);
     },
   });
+
+
+  // =========================
+  // editorが存在してCaptureが自分宛だったら
+  // =========================
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    if (!captureToInsert) {
+      return;
+    }
+
+    if (
+      captureToInsert.widgetId !== widget.id
+    ) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      editor.commands.insertContent([
+        {
+          type: "capture",
+          attrs: {
+            id: captureToInsert.id,
+            type: captureToInsert.type,
+          },
+        },
+        {
+          type: "paragraph",
+        },
+      ]);
+
+      clearCaptureToInsert();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [
+    editor,
+    captureToInsert,
+    widget.id,
+    clearCaptureToInsert,
+  ]);
 
   // =========================
   // selectedDateが変わったとき
@@ -316,12 +385,13 @@ export default function DiaryWidget({
 
       {/* Tiptap */}
 
-      <EditorContent
-        editor={editor}
-        className="
-          min-h-0
-          flex-1
-          overflow-y-auto
+      <div
+        ref={setNodeRef}
+        className="min-h-0 flex-1 overflow-y-auto"
+      >
+        <EditorContent
+          editor={editor}
+          className="
           text-xs
           text-gray-700
 
@@ -395,7 +465,8 @@ export default function DiaryWidget({
           [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-400
           [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none
         "
-      />
+        />
+      </div>
 
     </div>
   );
